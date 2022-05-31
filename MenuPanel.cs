@@ -28,7 +28,7 @@ namespace ReMod.Core.UI.QuickMenu
         { get { if (_headingPrefab == null) { var v = PanelPrefab; }
                 return _headingPrefab; } 
         }
-        private static GameObject RowPrefab
+        public static GameObject RowPrefab
         { get { if (_rowPrefab == null) { var v = PanelPrefab; }
                 return _rowPrefab; } 
         }
@@ -113,6 +113,10 @@ namespace ReMod.Core.UI.QuickMenu
         {
             return CreateHeading(name,text,InfoBox);;
         }
+        public MenuRow AddRoll(string name, string text,Sprite sprite = null)
+        {
+            return CreateRoll(name,text,InfoBox,sprite);
+        }
         public static TextMeshProUGUI CreateTitle(string name, string text,RectTransform trans)
         {
             var obj = Object.Instantiate(TitlePrefab, trans);
@@ -137,9 +141,51 @@ namespace ReMod.Core.UI.QuickMenu
             gui.text = text;
             return gui;
         }
+        
+        public static MenuRow CreateRoll(string name, string text,RectTransform trans,Sprite sprite = null)
+        {
+            return new MenuRow(name, text, trans, sprite);
+        }
         public static MenuPanel Create(string name, Transform parent,bool enablePicture = true)
         {
             return new MenuPanel(  name,  parent, enablePicture);
+        }
+    }
+
+    public class MenuRow
+    {
+        public string text
+        {
+            get => TextGUI.text;
+            set => TextGUI.text = value;
+        }
+
+        public GameObject gameObject;
+        
+        public TextMeshProUGUI TextGUI;
+        public Image Icon;
+
+        public MenuRow(string name, string text,RectTransform trans,Sprite sprite = null)
+        {
+            var obj = Object.Instantiate(MenuPanel.RowPrefab, trans);
+            gameObject = obj;
+            obj.name = $"TextRow_{name}";
+            TextGUI = obj.GetComponentInChildren<TextMeshProUGUI>();
+            TextGUI.name = $"Text_{name}";
+            TextGUI.text = text;
+            Icon = obj.GetComponentInChildren<Image>();
+            Icon.name = $"Icon_{name}";
+            SetSprite(sprite);
+        }
+
+        public void SetSprite(Sprite sprite)
+        {
+            if (sprite)
+            {
+                Icon.sprite = sprite;
+            } 
+            Icon.gameObject.SetActive(sprite!=null);
+            
         }
     }
 }

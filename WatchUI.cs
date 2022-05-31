@@ -31,7 +31,7 @@ namespace NowWatching
         public static MenuPanel VidPanel;
         public static TextMeshProUGUI GUITitle;
         public static TextMeshProUGUI GUIUploader;
-        public static TextMeshProUGUI GUIRating;
+        public static MenuRow GUIView;
         public static TextMeshProUGUI GUIDes;
         
         public static MenuPanel InfoPanel;
@@ -44,13 +44,22 @@ namespace NowWatching
              var page = new ReCategoryPage("Now Watching", true);
             var pageContent = page.RectTransform.Find("ScrollRect").GetComponent<ScrollRect>().content;
             MyTabButton = ReTabButton.Create("WatchingTab", "Now Watching tab", "NowWatching", ResourceManager.GetSprite("NowWatching.popcorn"));
-            
+            //*********Video Data Panel
             VidPanel = MenuPanel.Create("VidData",pageContent,true);
-            GUITitle = VidPanel.AddTitle("VidTitle","Title");
-            GUIUploader= VidPanel.AddSubTitle("VidUpload","By balls");; 
-            GUIRating= VidPanel.AddSubTitle("VidRating","1B dislikes");;
+            GUITitle = VidPanel.AddSubTitle("VidTitle","Title");
+            GUITitle.maxVisibleLines = 3;
+            GUITitle.rectTransform.anchorMin = new Vector2(0, 1);
+            GUITitle.rectTransform.anchorMax = new Vector2(0, 1);
+            GUITitle.m_minFontSize = 32;
+            var fit = GUITitle.gameObject.AddComponent<ContentSizeFitter>();
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            
+            GUIUploader= VidPanel.AddSubTitle("VidUpload","");; 
+            GUIView= VidPanel.AddRoll("VidRating","1B dislikes",ResourceManager.GetSprite("NowWatching.view"));
             GUIDes= VidPanel.AddHeading("VidDes","Description");;
-            GUIDes.maxVisibleLines = 3;
+            GUIDes.maxVisibleLines = 5;
+            GUIDes.verticalAlignment = VerticalAlignmentOptions.Baseline;
+            
             ResetVidPanel(true);
             InfoPanel = MenuPanel.Create("VidInfo",pageContent,false);
             InfoPanel.Background.gameObject.SetActive(false);
@@ -146,7 +155,7 @@ namespace NowWatching
             if(startup) VidPanel.GameObject.SetActive(false);
             GUITitle.text = "Loading";
             GUIUploader.text = "";
-            GUIRating.text = "";
+            GUIView.text = "";
             GUIDes.text = "";
         }
 
@@ -162,7 +171,7 @@ namespace NowWatching
             
             GetValue(GUITitle,"title");
             GetValue(GUIUploader,"channel");
-            GetValue(GUIRating,"view_count");
+            GetValueRow(GUIView,"view_count","{0} Views");
             GetValue(GUIDes,"description");
 
             if (d.TryGetValue("thumbnails", out JToken t))
@@ -181,16 +190,29 @@ namespace NowWatching
                         break;
                     }
                 }
-                //MelonCoroutines.Start(DownloadImage(t.ToString(),VidPanel.Picture));
             }
 
-            void GetValue(TextMeshProUGUI text,string key)
+            void GetValue(TextMeshProUGUI text,string key,string format = "{0}")
             {
+                bool thisValue = false;
                 if (d.TryGetValue(key, out JToken t))
                 {
-                    text.text = t.ToString();
+                    text.text = string.Format(format, t.ToString());
                     anyHasValue = true;
+                    thisValue = true;
                 }
+                text.gameObject.SetActive(thisValue);
+            }
+            void GetValueRow(MenuRow text,string key,string format = "{0}")
+            {
+                bool thisValue = false;
+                if (d.TryGetValue(key, out JToken t))
+                {
+                    text.text = string.Format(format, t.ToString());
+                    anyHasValue = true;
+                    thisValue = true;
+                }
+                text.gameObject.SetActive(thisValue);
             }
             VidPanel.GameObject.SetActive(anyHasValue);
 
