@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,9 +13,10 @@ using MelonLoader;
 using Newtonsoft.Json.Linq;
 using NowWatching;
 using ReMod.Core.VRChat;
+using UnityEngine.Networking;
+using UnityEngine.UI;
 using VRC; 
 using BuildInfo = NowWatching.BuildInfo;
-using Debug = UnityEngine.Debug;
 
 
 [assembly: MelonInfo(typeof(Mod), BuildInfo.Name, BuildInfo.Version, BuildInfo.Author)]
@@ -24,7 +27,7 @@ namespace NowWatching
 {
     public static class BuildInfo
     {
-        public const string Name = "NowShowing";
+        public const string Name = "NowWatching";
         public const string Author = "ballfun";
         public const string Version = "0.0.1";
     }
@@ -37,13 +40,8 @@ namespace NowWatching
         static string YTDLPath = "VRChat_Data/Plugins/" + YTDLExe;
         public override void OnApplicationStart()
         {
-            Logger = LoggerInstance;
-            string dbAss = "";
-            foreach (var v in Assembly.GetExecutingAssembly().GetManifestResourceNames())
-            {
-                dbAss += $"{v} | ";
-            }
-            Logger.Msg(dbAss);
+            Logger = LoggerInstance; 
+            
             try
             {
                 using var resourceStream = Assembly.GetExecutingAssembly()
@@ -54,13 +52,8 @@ namespace NowWatching
             }
             catch (IOException ex)
             {
-                MelonLogger.Error("Failed to write native exe and no installed file found");
-                MelonDebug.Msg(ex.ToString());
+                MelonLogger.Warning("Failed to write native exe");
             }
-            catch (Exception e)
-            {
-                MelonLogger.Error("other error "+e);
-            } 
             HarmonyInstance.Patch(
                 AccessTools.Method(typeof(VRC.LogFile), "Enqueue"),
                 postfix: new HarmonyMethod(typeof(Mod), nameof(PatchLog)));
@@ -78,10 +71,25 @@ namespace NowWatching
 
         }
 
-        public static string JsonCache;
+        public override void OnUpdate()
+        {
+            if (LastPlay!=null&&WatchUI.IsUIOpen && LastPlay.UpdateNeeded)
+            {
+                WatchUI.UpdateInfo();
+                LastPlay.UpdateNeeded = false;
+                if (!LastPlay.ThumbnailFetched)
+                {
+                    GetThumbnail(ref LastPlay);
+                }
+            }
+        }
+        //*****************************FETCHING DATA*****************************//
+        private static bool isUpdatingMeta;
         public static async void UpdateMetaData(VidLog vidData)
         {
+            if(isUpdatingMeta) return;
             if (vidData == null || vidData.Url == String.Empty) return;
+            isUpdatingMeta = true;
             try
             {
                 if (vidData.DlData == null&&!vidData.YtdlFailed)
@@ -94,17 +102,20 @@ namespace NowWatching
                         try
                         {
                             vidData.DlData = JObject.Parse(j); 
+                            
                             //WatchUI.UpdateVidPanel();
                         }
                         catch(Exception e) { vidData.YtdlFailed = true; }
                     }else{ vidData.YtdlFailed = true; }
+
+                    vidData.UpdateNeeded = true;
                 }
             }
             catch (Exception e)
             {
                 MelonLogger.Error($"Something went wrong with YTDL {e.ToString()}");
             }
-            
+            isUpdatingMeta = false;
         }
 
         public static async Task<string> GetMetadata(string vidData)
@@ -149,6 +160,60 @@ namespace NowWatching
         process.Close();
         return json;
         }
+
+        static void GetThumbnail(ref VidLog log)
+        {
+            if(log?.DlData == null) return;
+            if (log.DlData.TryGetValue("thumbnails", out JToken t))
+            {
+                var a = t.ToArray();
+                for (int i = a.Length-1; i >= 0; i--)
+                {
+                    var urlToken = a[i].SelectToken("url");
+                    if(urlToken==null) continue;
+                    string url = urlToken.ToString();
+                    MelonLogger.Msg(url);
+                    if (!url.EndsWith("webp"))
+                    {
+                        MelonCoroutines.Start(DownloadImage(url,log));
+                        break;
+                    }
+                }
+            }
+            log.ThumbnailFetched = true;
+        }
+        static IEnumerator  DownloadImage(string url,VidLog log)
+        {
+            if (log.ThumbnailFetched)
+            {
+                yield break;
+            }
+            UnityWebRequest request;
+            log.ThumbnailFetched = true;
+            var handler = new DownloadHandlerTexture(false);
+            request = UnityWebRequestTexture.GetTexture(url);
+            request.downloadHandler = handler;
+            yield return request.SendWebRequest();
+                
+
+            if (request.isNetworkError || request.isHttpError)
+                MelonLogger.Warning(request.error);
+            else
+                try
+                {
+                    if (handler.texture)
+                    {
+                        log.Thumbnail = handler.texture;
+                        log.UpdateNeeded = true;
+                    }
+                }
+                catch(Exception e)
+                {
+                    MelonLogger.Error($"IMGERR {e}");
+                }
+        } 
     }
+    
+    
 }
 

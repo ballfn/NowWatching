@@ -1,4 +1,5 @@
 ﻿using System;
+using Il2CppSystem.Linq;
 using MelonLoader;
 using ReMod.Core.VRChat;
 using TMPro;
@@ -48,9 +49,6 @@ namespace ReMod.Core.UI.QuickMenu
                     _subtitlePrefab = _panelPrefab.transform.Find("Panel/Info/Text_AuthorName").gameObject;
                     _headingPrefab = _panelPrefab.transform.Find("Panel/Info/Text_DetailsHeader").gameObject;
                     _rowPrefab = _panelPrefab.transform.Find("Panel/Info/Row/Text_OriginalPerformance").parent.gameObject;
-
-                    MelonLogger.Msg($"Found _titlePrefab|{_titlePrefab.name} _subtitlePrefab|{_subtitlePrefab.name} _headingPrefab|{_headingPrefab.name} _rowPrefab|{_rowPrefab.name}");
-                    
                 }
                 return _panelPrefab;
             }
@@ -58,7 +56,11 @@ namespace ReMod.Core.UI.QuickMenu
 
         public UnityEngine.UI.Image Background;
         public UnityEngine.UI.RawImage Picture;
+        private ContentSizeFitter panelFit;
+        private ContentSizeFitter innerPanelFit;
+        private ContentSizeFitter infoFit;
         public RectTransform InfoBox;
+        VerticalLayoutGroup infoLayout;
         public MenuPanel(string name, Transform parent,bool enablePicture) : base(PanelPrefab,
             parent, $"Panel_{name}")
         {
@@ -72,16 +74,28 @@ namespace ReMod.Core.UI.QuickMenu
             Background = RectTransform.Find("Panel/PanelBG").GetComponent<Image>();
             Picture = RectTransform.Find("Panel/Image_Mask/Image").GetComponent<RawImage>();
             InfoBox = RectTransform.Find("Panel/Info").GetComponent<RectTransform>();
+            infoLayout = InfoBox.GetComponent<VerticalLayoutGroup>();
+            panelFit = RectTransform.gameObject.AddComponent<ContentSizeFitter>();
+            innerPanelFit = RectTransform.GetChild(0).gameObject.AddComponent<ContentSizeFitter>();
+            infoFit = InfoBox.gameObject.AddComponent<ContentSizeFitter>();
             
-            /*
             Background.rectTransform.anchorMin = new Vector2(0, 0);
             Background.rectTransform.anchorMax = new Vector2(1, 1);
             Background.rectTransform.pivot = new Vector2(0.5f, 0.5f);
-            var fit = infoBox.gameObject.AddComponent<ContentSizeFitter>();
-            fit.verticalFit = ContentSizeFitter.FitMode.MinSize;*/
             EnablePicture = enablePicture;
         }
 
+        public void SetFit(ContentSizeFitter.FitMode mode)
+        {
+            panelFit.verticalFit = mode;
+            innerPanelFit.verticalFit = mode;
+            infoFit.verticalFit = mode;
+        }
+        public void UpdateInfoLayout()
+        {
+            //LayoutRebuilder.ForceRebuildLayoutImmediate(RectTransform);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(InfoBox);
+        }
         private bool _enablePicture = true;
 
         public bool EnablePicture
@@ -100,6 +114,13 @@ namespace ReMod.Core.UI.QuickMenu
                     InfoBox.offsetMin = new Vector2(12f, 12f);
                 }
             }
+        }
+
+        public void ResizeImage(Vector2 size)
+        {
+            //400 280 default //400 225 16:9
+            Picture.rectTransform.sizeDelta = size;
+            Picture.rectTransform.parent.GetComponent<RectTransform>().sizeDelta = size;
         }
         public TextMeshProUGUI AddTitle(string name, string text)
         {
@@ -128,6 +149,8 @@ namespace ReMod.Core.UI.QuickMenu
         public static TextMeshProUGUI CreateSubTitle(string name, string text,RectTransform trans)
         {
             var obj = Object.Instantiate(SubtitlePrefab, trans);
+            obj.GetComponent<RectTransform>().anchorMin = new Vector2(0, 1);
+            obj.GetComponent<RectTransform>().anchorMax = new Vector2(0, 1);
             obj.name = $"TextHeading_{name}";
             var gui = obj.GetComponent<TextMeshProUGUI>();
             gui.text = text;
@@ -140,6 +163,20 @@ namespace ReMod.Core.UI.QuickMenu
             var gui = obj.GetComponent<TextMeshProUGUI>();
             gui.text = text;
             return gui;
+        }
+        public static RectTransform CreateContainer(string name,RectTransform trans)
+        {
+            GameObject obj = new GameObject($"Container_{name}");
+            obj.transform.SetParent(trans,false);
+            
+            var rect = obj.AddComponent<RectTransform>();
+            var layout = obj.AddComponent<VerticalLayoutGroup>();
+            layout.childAlignment = TextAnchor.UpperLeft;
+            layout.childControlHeight = true;
+            layout.padding = new RectOffset(64, 64, 32, 32);
+            var fit = obj.AddComponent<ContentSizeFitter>();
+            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            return rect;
         }
         
         public static MenuRow CreateRoll(string name, string text,RectTransform trans,Sprite sprite = null)
@@ -157,7 +194,11 @@ namespace ReMod.Core.UI.QuickMenu
         public string text
         {
             get => TextGUI.text;
-            set => TextGUI.text = value;
+            set
+            {
+                TextGUI.text = value;
+                UpdateSprite();
+            }
         }
 
         public GameObject gameObject;
@@ -177,15 +218,15 @@ namespace ReMod.Core.UI.QuickMenu
             Icon.name = $"Icon_{name}";
             SetSprite(sprite);
         }
-
         public void SetSprite(Sprite sprite)
         {
-            if (sprite)
-            {
                 Icon.sprite = sprite;
-            } 
-            Icon.gameObject.SetActive(sprite!=null);
-            
+                UpdateSprite();
+        }
+
+        public void UpdateSprite()
+        {
+            Icon.gameObject.SetActive(Icon.sprite!=null&&text!="");
         }
     }
 }

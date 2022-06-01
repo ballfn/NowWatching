@@ -11,14 +11,17 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using MelonLoader;
 using ReMod.Core.VRChat;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Playables;
 using UnityEngine.UI;
 using VRC;
 using VRC.UI.Core;
 using WebSocketSharp;
+using Object = UnityEngine.Object;
 
 namespace NowWatching
 {
@@ -30,45 +33,53 @@ namespace NowWatching
 
         public static MenuPanel VidPanel;
         public static TextMeshProUGUI GUITitle;
-        public static TextMeshProUGUI GUIUploader;
+        public static MenuRow GUIUploader;
         public static MenuRow GUIView;
+        public static MenuRow GUIRating;
         public static TextMeshProUGUI GUIDes;
         
         public static MenuPanel InfoPanel;
         public static TextMeshProUGUI GUIUrl;
-        public static TextMeshProUGUI GUIResolved;
+        //public static TextMeshProUGUI GUIResolved;
         public static TextMeshProUGUI GUIError;
+
+        public static ReMenuButton ViewUrl;
+        public static ReMenuButton CopyUrl;
+        public static ReMenuButton CopyResolved;
 
         public static void PrepareMenu()
         {
              var page = new ReCategoryPage("Now Watching", true);
             var pageContent = page.RectTransform.Find("ScrollRect").GetComponent<ScrollRect>().content;
-            MyTabButton = ReTabButton.Create("WatchingTab", "Now Watching tab", "NowWatching", ResourceManager.GetSprite("NowWatching.popcorn"));
+            MyTabButton = ReTabButton.Create("WatchingTab", "Now Watching", "NowWatching", ResourceManager.GetSprite("NowWatching.popcorn"));
             //*********Video Data Panel
             VidPanel = MenuPanel.Create("VidData",pageContent,true);
+            VidPanel.ResizeImage(new Vector2(400,225));
             GUITitle = VidPanel.AddSubTitle("VidTitle","Title");
-            GUITitle.maxVisibleLines = 3;
-            GUITitle.rectTransform.anchorMin = new Vector2(0, 1);
-            GUITitle.rectTransform.anchorMax = new Vector2(0, 1);
-            GUITitle.m_minFontSize = 32;
-            var fit = GUITitle.gameObject.AddComponent<ContentSizeFitter>();
-            fit.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+            GUITitle.maxVisibleLines = 4;
             
-            GUIUploader= VidPanel.AddSubTitle("VidUpload","");; 
-            GUIView= VidPanel.AddRoll("VidRating","1B dislikes",ResourceManager.GetSprite("NowWatching.view"));
-            GUIDes= VidPanel.AddHeading("VidDes","Description");;
-            GUIDes.maxVisibleLines = 5;
-            GUIDes.verticalAlignment = VerticalAlignmentOptions.Baseline;
+            GUIUploader= VidPanel.AddRoll("VidUpload","",ResourceManager.GetSprite("NowWatching.upload"));;
+            GUIView= VidPanel.AddRoll("VidView","",ResourceManager.GetSprite("NowWatching.view"));
+            GUIRating= VidPanel.AddRoll("VidRating","",ResourceManager.GetSprite("NowWatching.like"));
             
-            ResetVidPanel(true);
-            InfoPanel = MenuPanel.Create("VidInfo",pageContent,false);
-            InfoPanel.Background.gameObject.SetActive(false);
-            GUIUrl = InfoPanel.AddTitle("VidUrl", "Video information will be shown here");
-            GUIResolved = InfoPanel.AddSubTitle("Resolved", "");
-            GUIResolved.maxVisibleLines = 3;
-            GUIError = InfoPanel.AddSubTitle("Resolved", "");
+            //**********Buttons
+            var actions = page.AddCategory("Actions");
+            ViewUrl = actions.AddButton("Open in browser", "Open URL in browser", ButtonOpenURL,
+                ResourceManager.GetSprite("NowWatching.web"));
+            CopyUrl = actions.AddButton("Copy URL", "Copy URL to clipboard", ButtonCopyURL,
+                ResourceManager.GetSprite("NowWatching.url"));
+            CopyResolved = actions.AddButton("Copy resolved", "Copy resolved URL to clipboard", ButtonCopyResolved,
+                ResourceManager.GetSprite("NowWatching.resolved"));
+            
+            var container = MenuPanel.CreateContainer("VidInfo", pageContent);
+            GUIUrl = MenuPanel.CreateSubTitle("VidUrl", "Video information will be shown here",container);
+            GUIError = MenuPanel.CreateSubTitle("Resolved", "",container);
             GUIError.maxVisibleLines = 3;
+            
+            GUIDes= MenuPanel.CreateHeading("VidDes","Description",container);
 
+            ResetVidPanel(true);
+            
             page.OnOpen += () =>
             {
                 IsUIOpen = true;
@@ -80,18 +91,16 @@ namespace NowWatching
             };
         }
 
+        
         public static void UpdateInfo()
         {
             if(!IsUIOpen) return;
-            MelonLogger.Msg("Update Info called");
-            if (!GUIUrl || !GUIResolved) return;
-        
+            if (!GUIUrl) return;
+            UpdateButtonState();
             if (NowWatching.Mod.LastPlay == null) return;
             
             GUIUrl.gameObject.SetActive(Mod.LastPlay.Url!="");
             GUIUrl.text = $"URL: {Mod.LastPlay.Url}";
-            GUIResolved.gameObject.SetActive(Mod.LastPlay.ResolvedUrl!=""&&Mod.LastPlay.Url!=Mod.LastPlay.ResolvedUrl);
-            GUIResolved.text = $"Resolved: {Mod.LastPlay.ResolvedUrl}";
             GUIError.gameObject.SetActive(Mod.LastPlay.Error!="");
             GUIError.text = $"ERROR: {Mod.LastPlay.Error}";
 
@@ -101,11 +110,23 @@ namespace NowWatching
             }
             else
             {
-                new Task(() => { Mod.UpdateMetaData(Mod.LastPlay);}).Start();
-                
+                ResetVidPanel();
+                if(!Mod.LastPlay.YtdlFailed)new Task(() => { Mod.UpdateMetaData(Mod.LastPlay);}).Start();
             }
-            
-            
+        }
+
+        public static void UpdateButtonState()
+        {
+            if (Mod.LastPlay == null)
+            {
+                ViewUrl.Active = false;
+                CopyUrl.Active = false;
+                CopyResolved.Active = false;
+                return;
+            }
+            ViewUrl.Active = Mod.LastPlay.Url!="";
+            CopyUrl.Active = Mod.LastPlay.Url!="";
+            CopyResolved.Active = Mod.LastPlay.ResolvedUrl!=""&&Mod.LastPlay.Url!=Mod.LastPlay.ResolvedUrl;
         }
 
         public static void Initialize()
@@ -145,7 +166,7 @@ namespace NowWatching
                 var ms = new MemoryStream();
                 stream.CopyTo(ms);
                 var resourceName = Regex.Match(resource, @"([a-zA-Z\d\-_]+)\.png").Groups[1].ToString();
-                MelonLogger.Msg($"Icon {resourceName}");
+                //MelonLogger.Msg($"Icon {resourceName}");
                 ResourceManager.LoadSprite("NowWatching", resourceName, ms.ToArray());
             }
         }
@@ -155,14 +176,13 @@ namespace NowWatching
             if(startup) VidPanel.GameObject.SetActive(false);
             GUITitle.text = "Loading";
             GUIUploader.text = "";
+            GUIRating.text = "";
             GUIView.text = "";
+            VidPanel.EnablePicture = false;
             GUIDes.text = "";
+
         }
 
-        private static string[] JsonCheckingKey =
-        {
-            "title", "channel","view_count","description"
-        };
         public static void UpdateVidPanel()
         {
             if(Mod.LastPlay.DlData==null) return;
@@ -170,27 +190,10 @@ namespace NowWatching
             var d = Mod.LastPlay.DlData;
             
             GetValue(GUITitle,"title");
-            GetValue(GUIUploader,"channel");
-            GetValueRow(GUIView,"view_count","{0} Views");
-            GetValue(GUIDes,"description");
-
-            if (d.TryGetValue("thumbnails", out JToken t))
-            {
-                //MelonLogger.Msg($"thumb {t.ToArray()}");
-                var a = t.ToArray();
-                for (int i = a.Length-1; i >= 0; i--)
-                {
-                    var urlToken = a[i].SelectToken("url");
-                    if(urlToken==null) continue;
-                    string url = urlToken.ToString();
-                    MelonLogger.Msg(url);
-                    if (!url.EndsWith("webp"))
-                    {
-                        MelonCoroutines.Start(DownloadImage(url,VidPanel.Picture));
-                        break;
-                    }
-                }
-            }
+            GetValueRow(GUIUploader,"channel");
+            GetValueRow(GUIRating,"like_count","{0:n0}");
+            GetValueRow(GUIView,"view_count","{0:n0} Views");
+            GetValue(GUIDes,"description","\n{0}");
 
             void GetValue(TextMeshProUGUI text,string key,string format = "{0}")
             {
@@ -214,49 +217,33 @@ namespace NowWatching
                 }
                 text.gameObject.SetActive(thisValue);
             }
+            VidPanel.EnablePicture= Mod.LastPlay.Thumbnail != null;
+            if (Mod.LastPlay.Thumbnail) VidPanel.Picture.texture = Mod.LastPlay.Thumbnail;
+            VidPanel.UpdateInfoLayout();
             VidPanel.GameObject.SetActive(anyHasValue);
-
+            //InfoPanel.UpdateInfoLayout();
         }
 
-        private static string lastImageUrl;
-        private static Texture lastRequest;
-        static IEnumerator  DownloadImage(string MediaUrl,RawImage rawImage)
+        static void ButtonCopyURL()
         {
-            if ((lastImageUrl) == MediaUrl && lastRequest != null)
-            {
-                //request = lastRequest;
-                rawImage.texture = lastRequest;
-                yield break;
-            }
-            UnityWebRequest request;
-            
-            lastImageUrl = MediaUrl; 
-            var handler = new DownloadHandlerTexture(false);
-            request = UnityWebRequestTexture.GetTexture(MediaUrl);
-            request.downloadHandler = handler;
-            //lastRequest = request;
-            yield return request.SendWebRequest();
-                
-
-                if (request.isNetworkError || request.isHttpError)
-                    Debug.Log(request.error);
-                else
-                    try
-                    {
-                        if (handler.texture)
-                        {
-                            lastRequest = handler.texture;
-                            rawImage.texture = lastRequest;
-                        }
-                        //lastRequest = ((DownloadHandlerTexture) request.downloadHandler).texture;
-                        rawImage.texture = lastRequest;
-                    }
-                    catch(Exception e)
-                    {
-                        MelonLogger.Error($"IMGERR {e}");
-                    }
-
-        } 
+            if (Mod.LastPlay==null) return;
+            MelonLogger.Msg("ButtonCopyURL");
+            Clipboard.SetText(Mod.LastPlay.Url);
+        }
+        static void ButtonCopyResolved()
+        {
+            if (Mod.LastPlay==null) return;
+            MelonLogger.Msg("ButtonCopyResolved");
+            Clipboard.SetText(Mod.LastPlay.ResolvedUrl);
+        }
+        static void ButtonOpenURL()
+        {
+            if (Mod.LastPlay==null) return;
+            MelonLogger.Msg("ButtonOpenURL");
+            UnityEngine.Application.OpenURL(Mod.LastPlay.Url);
+        }
+        
+        
     }
     
     

@@ -69,6 +69,9 @@ namespace NowWatching
                         data.type = LogData.Type.VidError;;
                         data.data =new []{line.Replace("[Video Playback] ERROR:","").Trim()};
                         break;
+                    case string s when s.StartsWith("[Video Playback] WARNING:"):
+                        //TODO: Implement this
+                        break;
                     case string s when s.StartsWith("[VRCX]"):
                         data.type = LogData.Type.VRX;
                         data.data =line.Replace("[VRCX]","").Trim().Split(',');
@@ -108,7 +111,11 @@ namespace NowWatching
         public string ResolvedUrl="";
         public string Error="";
         public string Vrcx="";
+
+        public bool UpdateNeeded;
         public JObject DlData=null;
+        public Texture Thumbnail;
+        public bool ThumbnailFetched;
         public bool YtdlFailed = false;
         public int Attempt;
     }

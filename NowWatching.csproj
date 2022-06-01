@@ -996,5 +996,13 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="sprite\like.png" />
+    <EmbeddedResource Include="sprite\resolved.png" />
+    <EmbeddedResource Include="sprite\upload.png" />
+    <EmbeddedResource Include="sprite\url.png" />
+    <EmbeddedResource Include="sprite\view.png" />
+    <EmbeddedResource Include="sprite\web.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
