@@ -1,4 +1,4 @@
-# NowShowing
+# Now Watching
 **Requires [ReMod.Core](https://github.com/RequiDev/ReMod.Core)**,
 also recommends [TabExtension](https://github.com/DragonPlayerX/TabExtension)
 
@@ -25,3 +25,5 @@ Currently you can only use YT-DLP that is embedded with this mod, using your own
 
 ## Attribution 
 [YT-DLP](https://github.com/yt-dlp/yt-dlp), [iconfinder](iconfinder.com), the countless mods and stackoverflow post I stolen code from
+
+Modding VRChat is against VRChat Terms of Service and can lead to your account being banned, but I'm not your mom
