@@ -56,6 +56,10 @@ namespace NowWatching
             VidPanel.ResizeImage(new Vector2(400,225));
             GUITitle = VidPanel.AddSubTitle("VidTitle","Title");
             GUITitle.maxVisibleLines = 4;
+            GUITitle.rectTransform.anchorMin = new Vector2(0, 1);
+            GUITitle.rectTransform.anchorMax = new Vector2(0, 1);
+            GUITitle.gameObject.AddComponent<ContentSizeFitter>()
+                .verticalFit = ContentSizeFitter.FitMode.PreferredSize;
             
             GUIUploader= VidPanel.AddRoll("VidUpload","",ResourceManager.GetSprite("NowWatching.upload"));;
             GUIView= VidPanel.AddRoll("VidView","",ResourceManager.GetSprite("NowWatching.view"));
@@ -72,6 +76,7 @@ namespace NowWatching
             
             var container = MenuPanel.CreateContainer("VidInfo", pageContent);
             GUIUrl = MenuPanel.CreateSubTitle("VidUrl", "Video information will be shown here",container);
+            GUIUrl.maxVisibleLines = 3;
             GUIError = MenuPanel.CreateSubTitle("Resolved", "",container);
             GUIError.maxVisibleLines = 3;
             

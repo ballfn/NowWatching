@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
@@ -22,13 +22,14 @@ using BuildInfo = NowWatching.BuildInfo;
 [assembly: MelonInfo(typeof(Mod), BuildInfo.Name, BuildInfo.Version, BuildInfo.Author)]
 [assembly: MelonGame("VRChat", "VRChat")]
 [assembly: MelonColor(ConsoleColor.DarkGreen)]
+[assembly: MelonOptionalDependencies("ReMod.Core")]
 namespace NowWatching
 {
     public static class BuildInfo
     {
         public const string Name = "NowWatching";
         public const string Author = "ballfun";
-        public const string Version = "0.1.0";
+        public const string Version = "0.1.1";
     }
 
     public class Mod : MelonMod

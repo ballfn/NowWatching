@@ -213,6 +213,7 @@ namespace ReMod.Core.UI.QuickMenu
             TextGUI = obj.GetComponentInChildren<TextMeshProUGUI>();
             TextGUI.name = $"Text_{name}";
             TextGUI.text = text;
+            TextGUI.maxVisibleLines = 1;
             Icon = obj.GetComponentInChildren<Image>();
             Icon.name = $"Icon_{name}";
             SetSprite(sprite);
