@@ -9,6 +9,7 @@ Displays the video information of whatever video is being played on a video play
 ## Features
 - Mainly works with YouTube and whatever YT-DLP supports
 - Video title, Thumbnail, Uploader, View count, Like and Video description
+- Shows error when video failed to load
 - Copy or open video links
 - Copy resolved URL to use for quest player
 
