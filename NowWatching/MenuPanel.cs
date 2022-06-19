@@ -39,7 +39,6 @@ namespace ReMod.Core.UI.QuickMenu
             {
                 if (_panelPrefab == null)
                 {
-                    MelonLogger.Msg("Finding Panel prefab");
                     _panelPrefab = QuickMenuEx.Instance.field_Public_Transform_0
                         .Find("Window/QMParent/Menu_QM_AvatarDetails/ScrollRect").GetComponent<ScrollRect>().content
                         .Find("Panel_AvatarDetailsCompact").gameObject;
@@ -72,6 +71,10 @@ namespace ReMod.Core.UI.QuickMenu
             }
             Background = RectTransform.Find("Panel/PanelBG").GetComponent<Image>();
             Picture = RectTransform.Find("Panel/Image_Mask/Image").GetComponent<RawImage>();
+            
+            Picture.rectTransform.anchorMin = new Vector2(.5f, .5f);
+            Picture.rectTransform.anchorMax = new Vector2(.5f, .5f);
+            Picture.rectTransform.anchoredPosition = Vector3.zero;
             InfoBox = RectTransform.Find("Panel/Info").GetComponent<RectTransform>();
             infoLayout = InfoBox.GetComponent<VerticalLayoutGroup>();
             panelFit = RectTransform.gameObject.AddComponent<ContentSizeFitter>();
@@ -118,6 +121,22 @@ namespace ReMod.Core.UI.QuickMenu
         public void ResizeImage(Vector2 size)
         {
             //400 280 default //400 225 16:9
+            Picture.rectTransform.sizeDelta = size;
+            Picture.rectTransform.parent.GetComponent<RectTransform>().sizeDelta = size;
+        }
+        public void ResizeImageScale(Vector2 scale)
+        {
+            Vector2 size;
+            //400 280 default //400 225 16:9
+            if (scale.x > scale.y)
+            {
+                size = new Vector2(400, scale.y * (400 / scale.x));
+            }
+            else
+            {
+                size = new Vector2(scale.x * (280 / scale.y),280);
+            }
+
             Picture.rectTransform.sizeDelta = size;
             Picture.rectTransform.parent.GetComponent<RectTransform>().sizeDelta = size;
         }

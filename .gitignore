@@ -408,3 +408,9 @@ FodyWeavers.xsd
 .vs/*
 
 
+
+NowWatching/NowWatching/obj/*
+
+MelonEnv/*
+NowWatching/obj/Debug/NowWatching.pdb
+NowWatching/obj/Debug/NowWatching.pdb

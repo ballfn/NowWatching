@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using System;
 using ReMod.Core.Managers;
 using ReMod.Core.UI.QuickMenu;
@@ -7,7 +6,6 @@ using TMPro;
 using System.Collections;
 
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -15,12 +13,8 @@ using System.Windows.Forms;
 using MelonLoader;
 using ReMod.Core.VRChat;
 using UnityEngine;
-using UnityEngine.Networking;
-using UnityEngine.Playables;
 using UnityEngine.UI;
-using VRC;
 using VRC.UI.Core;
-using Object = UnityEngine.Object;
 
 namespace NowWatching
 {
@@ -29,6 +23,7 @@ namespace NowWatching
         public static ReTabButton MyTabButton;
 
         public static bool IsUIOpen { get; private set; }
+        public static bool UIInited;
 
         public static MenuPanel VidPanel;
         public static TextMeshProUGUI GUITitle;
@@ -42,6 +37,7 @@ namespace NowWatching
         //public static TextMeshProUGUI GUIResolved;
         public static TextMeshProUGUI GUIError;
 
+        public static ReMenuCategory DebugContainer;
         public static ReMenuButton ViewUrl;
         public static ReMenuButton CopyUrl;
         public static ReMenuButton CopyResolved;
@@ -71,7 +67,7 @@ namespace NowWatching
                 ResourceManager.GetSprite("NowWatching.web"));
             CopyUrl = actions.AddButton("Copy URL", "Copy URL to clipboard", ButtonCopyURL,
                 ResourceManager.GetSprite("NowWatching.url"));
-            CopyResolved = actions.AddButton("Copy resolved", "Copy resolved URL to clipboard", ButtonCopyResolved,
+            CopyResolved = actions.AddButton("Copy resolved", "Copy resolved URL to clipboard !THIS MAY LEAK IP!", ButtonCopyResolved,
                 ResourceManager.GetSprite("NowWatching.resolved"));
             
             var container = MenuPanel.CreateContainer("VidInfo", pageContent);
@@ -79,10 +75,13 @@ namespace NowWatching
             GUIUrl.maxVisibleLines = 3;
             GUIError = MenuPanel.CreateSubTitle("Resolved", "",container);
             GUIError.maxVisibleLines = 3;
+            DebugContainer = page.AddCategory("Debug");
+            DebugContainer.AddButton("Copy JSON", "Copy JSON", ButtonCopyJSON,
+                ResourceManager.GetSprite("NowWatching.url"));
             
             GUIDes= MenuPanel.CreateHeading("VidDes","Description",container);
 
-            ResetVidPanel(true);
+            ResetVidPanel();
             
             page.OnOpen += () =>
             {
@@ -93,18 +92,27 @@ namespace NowWatching
             {
                 IsUIOpen = false;
             };
+
+            UIInited = true;
+            UpdateSettings();
+
         }
 
-        
+        public static void UpdateSettings()
+        {
+            if(!UIInited) return;
+            DebugContainer.Active = Mod.ShowDebug.Value;
+            UpdateButtonState();
+        }
         public static void UpdateInfo()
         {
-            if(!IsUIOpen) return;
-            if (!GUIUrl) return;
+            //if(!IsUIOpen) return;
+            if (!UIInited) return;
             UpdateButtonState();
             if (NowWatching.Mod.LastPlay == null) return;
             
-            GUIUrl.gameObject.SetActive(Mod.LastPlay.Url!="");
-            GUIUrl.text = $"URL: {Mod.LastPlay.Url}";
+            //GUIUrl.gameObject.SetActive(Mod.LastPlay.Url!="");
+            GUIUrl.text = Mod.LastPlay.Url=="" ? "Video information will be shown here":$"URL: {Mod.LastPlay.Url}";
             GUIError.gameObject.SetActive(Mod.LastPlay.Error!="");
             GUIError.text = $"ERROR: {Mod.LastPlay.Error}";
 
@@ -130,7 +138,7 @@ namespace NowWatching
             }
             ViewUrl.Active = Mod.LastPlay.Url!="";
             CopyUrl.Active = Mod.LastPlay.Url!="";
-            CopyResolved.Active = Mod.LastPlay.ResolvedUrl!=""&&Mod.LastPlay.Url!=Mod.LastPlay.ResolvedUrl;
+            CopyResolved.Active = Mod.LastPlay.ResolvedUrl!=""&&Mod.LastPlay.Url!=Mod.LastPlay.ResolvedUrl&&Mod.ShowResolved.Value;
         }
 
         public static void Initialize()
@@ -154,6 +162,7 @@ namespace NowWatching
             while (QuickMenuEx.Instance == null)
                 yield return null;
             code();
+            
         }
         public static void CacheIcons()
         {
@@ -174,10 +183,11 @@ namespace NowWatching
             }
         }
 
-        public static void ResetVidPanel(bool startup = false)
+        public static void ResetVidPanel()
         {
-            if(startup) VidPanel.GameObject.SetActive(false);
-            GUITitle.text = "Loading";
+            VidPanel.GameObject.SetActive(false);
+            GUIUrl.text = "Video information will be shown here";
+            GUITitle.text = "";
             GUIUploader.text = "";
             GUIRating.text = "";
             GUIView.text = "";
@@ -191,11 +201,15 @@ namespace NowWatching
             if(Mod.LastPlay.DlData==null) return;
             bool anyHasValue = false;
             var d = Mod.LastPlay.DlData;
-            
-            GetValue(GUITitle,"title");
-            GetValueRow(GUIUploader,"channel");
-            GetValueRow(GUIRating,"like_count","{0:n0}");
-            GetValueRow(GUIView,"view_count","{0:n0} Views");
+            if (d.TryGetValue("direct", out JToken t))
+            {
+                    VidPanel.GameObject.SetActive(anyHasValue);
+                    return;
+            }
+            GetValue(GUITitle,"fulltitle");
+            GetValueRow(GUIUploader,"uploader");
+            GetValueRow(GUIRating,"like_count","{0}",true);
+            GetValueRow(GUIView,"view_count","{0} Views",true);
             GetValue(GUIDes,"description","\n{0}");
 
             void GetValue(TextMeshProUGUI text,string key,string format = "{0}")
@@ -209,19 +223,28 @@ namespace NowWatching
                 }
                 text.gameObject.SetActive(thisValue);
             }
-            void GetValueRow(MenuRow text,string key,string format = "{0}")
+            void GetValueRow(MenuRow text,string key,string format = "{0}",bool isInt = false)
             {
                 bool thisValue = false;
                 if (d.TryGetValue(key, out JToken t))
                 {
-                    text.text = string.Format(format, t.ToString());
+                    string txt = t.ToString();
+                    if (isInt)
+                    {
+                        if (int.TryParse(txt, out int i)) txt = $"{i:n0}";
+                    } 
+                    text.text =string.Format(format, txt);
                     anyHasValue = true;
                     thisValue = true;
                 }
                 text.gameObject.SetActive(thisValue);
             }
             VidPanel.EnablePicture= Mod.LastPlay.Thumbnail != null;
-            if (Mod.LastPlay.Thumbnail) VidPanel.Picture.texture = Mod.LastPlay.Thumbnail;
+            if (Mod.LastPlay.Thumbnail)
+            {
+                VidPanel.ResizeImageScale(new Vector2(Mod.LastPlay.Thumbnail.width,Mod.LastPlay.Thumbnail.height));
+                VidPanel.Picture.texture = Mod.LastPlay.Thumbnail;
+            }
             VidPanel.UpdateInfoLayout();
             VidPanel.GameObject.SetActive(anyHasValue);
             //InfoPanel.UpdateInfoLayout();
@@ -238,6 +261,12 @@ namespace NowWatching
             if (Mod.LastPlay==null) return;
             MelonLogger.Msg("ButtonCopyResolved");
             Clipboard.SetText(Mod.LastPlay.ResolvedUrl);
+        }
+        static void ButtonCopyJSON()
+        {
+            if (Mod.LastPlay==null||Mod.LastPlay.DlData==null) return;
+            MelonLogger.Msg("ButtonCopJSON");
+            Clipboard.SetText(Mod.LastPlay.DlData.ToString());
         }
         static void ButtonOpenURL()
         {

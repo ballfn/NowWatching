@@ -12,7 +12,6 @@ using UnityEngine;
 using MelonLoader;
 using Newtonsoft.Json.Linq;
 using NowWatching;
-using ReMod.Core.VRChat;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 using VRC; 
@@ -22,14 +21,14 @@ using BuildInfo = NowWatching.BuildInfo;
 [assembly: MelonInfo(typeof(Mod), BuildInfo.Name, BuildInfo.Version, BuildInfo.Author)]
 [assembly: MelonGame("VRChat", "VRChat")]
 [assembly: MelonColor(ConsoleColor.DarkGreen)]
-[assembly: MelonOptionalDependencies("ReMod.Core")]
+//[assembly: MelonOptionalDependencies("ReMod.Core")]
 namespace NowWatching
 {
     public static class BuildInfo
     {
         public const string Name = "NowWatching";
         public const string Author = "ballfun";
-        public const string Version = "0.1.1";
+        public const string Version = "0.2.0";
     }
 
     public class Mod : MelonMod
@@ -38,6 +37,16 @@ namespace NowWatching
         public static VidLog LastPlay;
         private const string YTDLExe = "yt-dlp_x86.exe";
         static string YTDLPath = "VRChat_Data/Plugins/" + YTDLExe;
+
+        #region SETTINGS
+
+        public static MelonPreferences_Category MyPreferenceCategory;
+        public static MelonPreferences_Entry<bool> AutoFetch;
+        public static MelonPreferences_Entry<bool> ShowResolved;
+        public static MelonPreferences_Entry<bool> ClearSceneChange;
+        public static MelonPreferences_Entry<bool> ShowDebug;
+
+        #endregion
         public override void OnApplicationStart()
         {
             Logger = LoggerInstance; 
@@ -60,6 +69,13 @@ namespace NowWatching
 
             
             WatchUI.Initialize();
+            MyPreferenceCategory = MelonPreferences.CreateCategory("NowWatching");
+            AutoFetch = MyPreferenceCategory.CreateEntry("AutoFetch", true,"Auto Fetch","Auto fetch data when a video is played");
+            ClearSceneChange = MyPreferenceCategory.CreateEntry("ClearSceneChange", true,"Clear after world change","Clear active video on world change");
+            ShowResolved = MyPreferenceCategory.CreateEntry("ShowResolved", false,"Show Resolved","!THIS MAY LEAK IP! show resolved copy button");
+            ShowDebug = MyPreferenceCategory.CreateEntry("ShowDebug", false,"Show Debug","Show debug UI",true);
+            ShowDebug.OnValueChanged += (b, b1) => WatchUI.UpdateSettings();
+            ShowResolved.OnValueChanged += (b, b1) => WatchUI.UpdateSettings();
         }
 
 
@@ -73,7 +89,7 @@ namespace NowWatching
 
         public override void OnUpdate()
         {
-            if (LastPlay!=null&&WatchUI.IsUIOpen && LastPlay.UpdateNeeded)
+            if (LastPlay != null && (WatchUI.IsUIOpen || AutoFetch.Value) && LastPlay.UpdateNeeded)
             {
                 WatchUI.UpdateInfo();
                 LastPlay.UpdateNeeded = false;
@@ -82,6 +98,20 @@ namespace NowWatching
                     GetThumbnail(ref LastPlay);
                 }
             }
+        }
+
+        public override void OnSceneWasUnloaded(int buildIndex, string sceneName)
+        {
+            if (ClearSceneChange.Value)
+            {
+                if (LastPlay != null&&LastPlay.Url!="") ClearLastPlay();
+            }
+        }
+
+        static void ClearLastPlay()
+        {
+            LastPlay = new VidLog();
+            WatchUI.UpdateInfo();
         }
         //*****************************FETCHING DATA*****************************//
         private static bool isUpdatingMeta;
@@ -163,6 +193,15 @@ namespace NowWatching
         static void GetThumbnail(ref VidLog log)
         {
             if(log?.DlData == null) return;
+            MelonCoroutines.Start(DownloadImage(log));
+            
+        }
+        static IEnumerator  DownloadImage(VidLog log)
+        {
+            if (log.ThumbnailFetched)
+            {
+                yield break;
+            }
             if (log.DlData.TryGetValue("thumbnails", out JToken t))
             {
                 var a = t.ToArray();
@@ -173,42 +212,36 @@ namespace NowWatching
                     string url = urlToken.ToString();
                     if (!url.EndsWith("webp"))
                     {
-                        MelonCoroutines.Start(DownloadImage(url,log));
-                        break;
-                    }
-                }
-            }
-            log.ThumbnailFetched = true;
-        }
-        static IEnumerator  DownloadImage(string url,VidLog log)
-        {
-            if (log.ThumbnailFetched)
-            {
-                yield break;
-            }
-            UnityWebRequest request;
-            log.ThumbnailFetched = true;
-            var handler = new DownloadHandlerTexture(false);
-            request = UnityWebRequestTexture.GetTexture(url);
-            request.downloadHandler = handler;
-            yield return request.SendWebRequest();
-                
+                        UnityWebRequest request;
+                        log.ThumbnailFetched = true;
+                        var handler = new DownloadHandlerTexture(false);
+                        request = UnityWebRequestTexture.GetTexture(url);
+                        request.downloadHandler = handler;
+                        yield return request.SendWebRequest();
 
-            if (request.isNetworkError || request.isHttpError)
-                MelonLogger.Warning(request.error);
-            else
-                try
-                {
-                    if (handler.texture)
-                    {
-                        log.Thumbnail = handler.texture;
-                        log.UpdateNeeded = true;
+
+                        if (request.isNetworkError || request.isHttpError)
+                        {
+                            if(!request.error.Contains("404 Not Found")) MelonLogger.Warning($"Thumbnail[{i}] failed:{request.error}");
+                        }
+                        else
+                            try
+                            {
+                                if (handler.texture)
+                                {
+                                    log.Thumbnail = handler.texture;
+                                    
+                                    log.UpdateNeeded = true;
+                                    break;
+                                }
+                            }
+                            catch(Exception e)
+                            {
+                                MelonLogger.Error($"IMGERR {e}");
+                            }
                     }
                 }
-                catch(Exception e)
-                {
-                    MelonLogger.Error($"IMGERR {e}");
-                }
+            }
         } 
     }
     

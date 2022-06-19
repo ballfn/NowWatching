@@ -7,7 +7,6 @@ namespace NowWatching
 {
     public class WatchLog
     {
-        
         public static void Log(Il2CppSystem.DateTime __0, LogType __1, string __2, string __3,ref VidLog lastPlay)
         {
             string line = Regex.Replace(__3, "<.*?>", string.Empty);
@@ -20,12 +19,15 @@ namespace NowWatching
             {
                 case LogData.Type.Unknown:
                    lastPlay.Error = log.data[0];
+                   lastPlay.UpdateNeeded = true;
                     break;
                 case LogData.Type.VidError:
                     lastPlay.Error = log.data[0];
+                    lastPlay.UpdateNeeded = true;
                     break;
                 case LogData.Type.VidResolve:
                     lastPlay.ResolvedUrl = log.data[3];
+                    lastPlay.UpdateNeeded = true;
                     break;
                 case LogData.Type.VRX:
                     lastPlay.Vrcx = log.DataDebug();
@@ -40,13 +42,12 @@ namespace NowWatching
                     {
                         if(lastPlay.Url!="")lastPlay = new VidLog();
                         lastPlay.Url = url;
+                        lastPlay.UpdateNeeded = true;
                     }
                     break;
             }
-
-            WatchUI.UpdateInfo();
-            Mod.Logger.Msg($"----Now Showing----\nURL:{lastPlay.Url}\nResolved:{lastPlay.ResolvedUrl.Substring(0, Math.Min(lastPlay.ResolvedUrl.Length, 100))}" +
-                       $"\nrcx:{lastPlay.Vrcx}\nError:{lastPlay.Error}\n----------------------------------------------");
+            /*Mod.Logger.Msg($"----Now Showing----\nURL:{lastPlay.Url}\nResolved:{lastPlay.ResolvedUrl.Substring(0, Math.Min(lastPlay.ResolvedUrl.Length, 100))}" +
+                       $"\nrcx:{lastPlay.Vrcx}\nError:{lastPlay.Error}\n----------------------------------------------");*/
             
         }
     }
