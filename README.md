@@ -1,6 +1,6 @@
 # Now Watching
 **Requires [ReMod.Core](https://github.com/RequiDev/ReMod.Core)**,
-also recommends [TabExtension](https://github.com/DragonPlayerX/TabExtension)
+also recommends [TabExtension](https://github.com/DragonPlayerX/TabExtension) and [UI Expansion Kit](https://github.com/knah/VRCMods)
 
 <img width="260" alt="Ummmmm mods" src="https://user-images.githubusercontent.com/23136826/171428793-7727b6fb-0b4e-4f87-9116-434edd717be1.png">
 
