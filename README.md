@@ -28,3 +28,5 @@ Currently you can only use YT-DLP that is embedded with this mod, using your own
 [YT-DLP](https://github.com/yt-dlp/yt-dlp), [iconfinder](iconfinder.com), the countless mods and stackoverflow post I stolen code from
 
 Modding VRChat is against VRChat Terms of Service and can lead to your account being banned, but I'm not your mom
+
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/V7V6D0XQP) I like money
