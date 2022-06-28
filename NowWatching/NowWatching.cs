@@ -3,6 +3,7 @@ using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,7 +29,7 @@ namespace NowWatching
     {
         public const string Name = "NowWatching";
         public const string Author = "ballfun";
-        public const string Version = "0.2.0";
+        public const string Version = "0.2.1";
     }
 
     public class Mod : MelonMod
@@ -36,7 +37,7 @@ namespace NowWatching
         internal static MelonLogger.Instance Logger;
         public static VidLog LastPlay;
         private const string YTDLExe = "yt-dlp_x86.exe";
-        static string YTDLPath = "VRChat_Data/Plugins/" + YTDLExe;
+        static string YTDLPath = "Executables/" + YTDLExe;
 
         #region SETTINGS
 
@@ -49,20 +50,18 @@ namespace NowWatching
         #endregion
         public override void OnApplicationStart()
         {
-            Logger = LoggerInstance; 
+            Logger = LoggerInstance;
             
-            try
+            if(!File.Exists(YTDLPath)) DownloadYtdl();
+            
+            //TODO: Remove this in a future version
+            if (File.Exists("VRChat_Data/Plugins/yt-dlp_x86.exe"))
             {
-                using var resourceStream = Assembly.GetExecutingAssembly()
-                    .GetManifestResourceStream( typeof(Mod),"yt-dlp_x86.exe");
-                if (resourceStream == null) throw new Exception("WTF");
-                using var fileStream = File.Open(YTDLPath, FileMode.Create, FileAccess.Write);
-                resourceStream.CopyTo(fileStream);
+                Logger.Msg("Found old ytdl, deleting...");
+                File.Delete("VRChat_Data/Plugins/yt-dlp_x86.exe");
             }
-            catch (IOException ex)
-            {
-                MelonLogger.Warning("Failed to write native exe");
-            }
+            
+            
             HarmonyInstance.Patch(
                 AccessTools.Method(typeof(VRC.LogFile), "Enqueue"),
                 postfix: new HarmonyMethod(typeof(Mod), nameof(PatchLog)));
@@ -242,7 +241,21 @@ namespace NowWatching
                     }
                 }
             }
+            
         } 
+        
+        static void DownloadYtdl()
+        {
+           //https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_x86.exe
+           try
+           {
+               new WebClient().DownloadFile("https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_x86.exe",YTDLPath);
+           }
+           catch (Exception e)
+           {
+               MelonLogger.Error($"Unable to Download YT-DLP: {e}");
+           }
+        }
     }
     
     

@@ -34,11 +34,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="yt-dlp_x86.exe" />
-    <EmbeddedResource Include="yt-dlp_x86.exe" />
-  </ItemGroup>
   
   <ItemGroup>
     <Compile Include="NowWatching.cs" />
