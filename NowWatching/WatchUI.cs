@@ -72,9 +72,9 @@ namespace NowWatching
             
             var container = MenuPanel.CreateContainer("VidInfo", pageContent);
             GUIUrl = MenuPanel.CreateSubTitle("VidUrl", "Video information will be shown here",container);
-            GUIUrl.maxVisibleLines = 3;
+            //GUIUrl.maxVisibleLines = 3;
             GUIError = MenuPanel.CreateSubTitle("Resolved", "",container);
-            GUIError.maxVisibleLines = 3;
+            //GUIError.maxVisibleLines = 3;
             DebugContainer = page.AddCategory("Debug");
             DebugContainer.AddButton("Copy JSON", "Copy JSON", ButtonCopyJSON,
                 ResourceManager.GetSprite("NowWatching.url"));
@@ -112,7 +112,15 @@ namespace NowWatching
             if (NowWatching.Mod.LastPlay == null) return;
             
             //GUIUrl.gameObject.SetActive(Mod.LastPlay.Url!="");
-            GUIUrl.text = Mod.LastPlay.Url=="" ? "Video information will be shown here":$"URL: {Mod.LastPlay.Url}";
+            if (Mod.LastPlay.Url == "")
+            {
+                GUIUrl.text = "Video information will be shown here";
+            }
+            else
+            {
+                GUIUrl.text = Mod.ShowFullUrl.Value ? $"URL: {Mod.LastPlay.Url}":$"{new Uri(Mod.LastPlay.Url).Host}";
+            }
+
             GUIError.gameObject.SetActive(Mod.LastPlay.Error!="");
             GUIError.text = $"ERROR: {Mod.LastPlay.Error}";
 

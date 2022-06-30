@@ -42,6 +42,8 @@ namespace NowWatching
         #region SETTINGS
 
         public static MelonPreferences_Category MyPreferenceCategory;
+        
+        public static MelonPreferences_Entry<bool> ShowFullUrl;
         public static MelonPreferences_Entry<bool> AutoFetch;
         public static MelonPreferences_Entry<bool> ShowResolved;
         public static MelonPreferences_Entry<bool> ClearSceneChange;
@@ -69,12 +71,14 @@ namespace NowWatching
             
             WatchUI.Initialize();
             MyPreferenceCategory = MelonPreferences.CreateCategory("NowWatching");
+            ShowFullUrl = MyPreferenceCategory.CreateEntry("ShowFullUrl",false, "Show Full URL", "Show Full URL");
             AutoFetch = MyPreferenceCategory.CreateEntry("AutoFetch", true,"Auto Fetch","Auto fetch data when a video is played");
             ClearSceneChange = MyPreferenceCategory.CreateEntry("ClearSceneChange", true,"Clear after world change","Clear active video on world change");
             ShowResolved = MyPreferenceCategory.CreateEntry("ShowResolved", false,"Show Resolved","!THIS MAY LEAK IP! show resolved copy button");
             ShowDebug = MyPreferenceCategory.CreateEntry("ShowDebug", false,"Show Debug","Show debug UI",true);
             ShowDebug.OnValueChanged += (b, b1) => WatchUI.UpdateSettings();
             ShowResolved.OnValueChanged += (b, b1) => WatchUI.UpdateSettings();
+            ShowFullUrl.OnValueChanged += (b, b1) => WatchUI.UpdateInfo();
         }
 
 
@@ -92,7 +96,7 @@ namespace NowWatching
             {
                 WatchUI.UpdateInfo();
                 LastPlay.UpdateNeeded = false;
-                if (!LastPlay.ThumbnailFetched)
+                if (!LastPlay.ThumbnailRequested)
                 {
                     GetThumbnail(ref LastPlay);
                 }
@@ -152,7 +156,7 @@ namespace NowWatching
            //var fetched = await ProcessAsyncHelper.RunProcessAsync(AppContext.BaseDirectory+"\\"+YTDLPath.Replace('/','\\'),$"-j {vidData}",100);
            //MelonLogger.Msg($"[Fetched] {fetched}");
            var processInfo = new ProcessStartInfo(AppContext.BaseDirectory+"\\"+YTDLPath.Replace('/','\\'),
-            $"-j {vidData}");
+            $"-j --no-playlist {vidData}");
 
         processInfo.CreateNoWindow = true;
         processInfo.UseShellExecute = false;
@@ -195,12 +199,15 @@ namespace NowWatching
             MelonCoroutines.Start(DownloadImage(log));
             
         }
+        
         static IEnumerator  DownloadImage(VidLog log)
         {
-            if (log.ThumbnailFetched)
+            if (log.ThumbnailRequested)
             {
                 yield break;
             }
+            
+            log.ThumbnailRequested = true;
             if (log.DlData.TryGetValue("thumbnails", out JToken t))
             {
                 var a = t.ToArray();
@@ -212,7 +219,6 @@ namespace NowWatching
                     if (!url.EndsWith("webp"))
                     {
                         UnityWebRequest request;
-                        log.ThumbnailFetched = true;
                         var handler = new DownloadHandlerTexture(false);
                         request = UnityWebRequestTexture.GetTexture(url);
                         request.downloadHandler = handler;
@@ -229,7 +235,7 @@ namespace NowWatching
                                 if (handler.texture)
                                 {
                                     log.Thumbnail = handler.texture;
-                                    
+                                    log.ThumbnailFetched = true;
                                     log.UpdateNeeded = true;
                                     break;
                                 }
@@ -241,6 +247,7 @@ namespace NowWatching
                     }
                 }
             }
+            log.ThumbnailRequested = false;
             
         } 
         

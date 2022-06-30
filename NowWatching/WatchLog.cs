@@ -2,6 +2,7 @@
 using Il2CppSystem;
 using Il2CppSystem.Text.RegularExpressions;
 using UnityEngine;
+using ArgumentOutOfRangeException = System.ArgumentOutOfRangeException;
 
 namespace NowWatching
 {
@@ -9,8 +10,11 @@ namespace NowWatching
     {
         public static void Log(Il2CppSystem.DateTime __0, LogType __1, string __2, string __3,ref VidLog lastPlay)
         {
+            //Mod.Logger.Msg(__3);
+            if(__3 ==null) return;
             string line = Regex.Replace(__3, "<.*?>", string.Empty);
             if (!line.StartsWith("[Video Playback] ") && !line.StartsWith("[VRCX] ")) return;
+            
             if (lastPlay == null) lastPlay = new VidLog();
             
             var log = LogPhaser.ParseLog(line);
@@ -45,9 +49,14 @@ namespace NowWatching
                         lastPlay.UpdateNeeded = true;
                     }
                     break;
+                case LogData.Type.VidWarning:
+                    break;
+                default:
+                    break;
             }
             /*Mod.Logger.Msg($"----Now Showing----\nURL:{lastPlay.Url}\nResolved:{lastPlay.ResolvedUrl.Substring(0, Math.Min(lastPlay.ResolvedUrl.Length, 100))}" +
-                       $"\nrcx:{lastPlay.Vrcx}\nError:{lastPlay.Error}\n----------------------------------------------");*/
+                       $"\nrcx:{lastPlay.Vrcx}\nError:{lastPlay.Error}\n----------------------------------------------");#1#
+                       */
             
         }
     }
@@ -71,7 +80,8 @@ namespace NowWatching
                         data.data =new []{line.Replace("[Video Playback] ERROR:","").Trim()};
                         break;
                     case string s when s.StartsWith("[Video Playback] WARNING:"):
-                        //TODO: Implement this
+                        data.type = LogData.Type.VidWarning;
+                        data.data =new []{line.Replace("[Video Playback] WARNING:","").Trim()};
                         break;
                     case string s when s.StartsWith("[VRCX]"):
                         data.type = LogData.Type.VRX;
@@ -89,7 +99,7 @@ namespace NowWatching
     {
         public enum Type
         {
-            Unknown=0,VidPlay,VidError,VidResolve,VRX
+            Unknown=0,VidPlay,VidError,VidWarning,VidResolve,VRX
         }
 
         public Type type;
@@ -116,6 +126,7 @@ namespace NowWatching
         public bool UpdateNeeded;
         public JObject DlData=null;
         public Texture Thumbnail;
+        public bool ThumbnailRequested;
         public bool ThumbnailFetched;
         public bool YtdlFailed = false;
         public int Attempt;
