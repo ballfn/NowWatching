@@ -256,6 +256,7 @@ namespace NowWatching
            //https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_x86.exe
            try
            {
+               Logger.Msg("Downloading YTDL...");
                new WebClient().DownloadFile("https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_x86.exe",YTDLPath);
            }
            catch (Exception e)
