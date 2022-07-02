@@ -16,6 +16,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <PostBuildEvent>copy $(SolutionDir)NowWatching\bin\Debug\NowWatching.dll $(SolutionDir)MelonEnv\Mods</PostBuildEvent>
+    
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

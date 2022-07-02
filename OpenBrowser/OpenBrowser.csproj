@@ -1,0 +1,350 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{8DAB964D-6855-4821-8091-0C683A31635B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NowWatching</RootNamespace>
+    <AssemblyName>OpenBrowser</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PostBuildEvent>copy $(SolutionDir)OpenBrowser\bin\Debug\OpenBrowser.dll $(SolutionDir)MelonEnv\Mods</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="OpenBrowser.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="0Harmony, Version=2.9.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Accessibility, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Accessibility.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="AssetRipper.VersionUtilities, Version=1.2.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\AssetRipper.VersionUtilities.dll</HintPath>
+    </Reference>
+    <Reference Include="AssetsTools.NET, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\AssetsTools.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="AVProVideo.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\AVProVideo.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="BlobHandles.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\BlobHandles.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="DataModel, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\DataModel.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\DOTween.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.Steamworks.Win64, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Facepunch.Steamworks.Win64.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppMono.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Il2CppMono.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2Cppmscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Il2Cppmscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppNewtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Il2CppNewtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppSystem, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Il2CppSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppSystem.Collections.Immutable, Version=5.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Il2CppSystem.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppSystem.Configuration, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Il2CppSystem.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppSystem.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Il2CppSystem.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppSystem.Memory, Version=4.0.1.1, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Il2CppSystem.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppSystem.Threading.Tasks.Extensions, Version=4.2.0.1, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Il2CppSystem.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="Il2CppSystem.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Il2CppSystem.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="MelonLoader, Version=0.5.4.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\MelonLoader.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil, Version=0.10.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
+      <HintPath>..\MelonEnv\MelonLoader\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Mdb, Version=0.10.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
+      <HintPath>..\MelonEnv\MelonLoader\Mono.Cecil.Mdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Pdb, Version=0.10.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
+      <HintPath>..\MelonEnv\MelonLoader\Mono.Cecil.Pdb.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil.Rocks, Version=0.10.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e">
+      <HintPath>..\MelonEnv\MelonLoader\Mono.Cecil.Rocks.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Posix, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Mono.Posix.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Mono.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.WebBrowser, Version=4.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Mono.WebBrowser.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.RuntimeDetour, Version=22.1.29.1, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\MonoMod.RuntimeDetour.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.Utils, Version=22.1.29.1, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\MonoMod.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\mscorlib.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Oculus.VR, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Oculus.VR.dll</HintPath>
+    </Reference>
+    <Reference Include="OscCore.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\OscCore.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Photon-DotNet, Version=4.1.6.12, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Photon-DotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="ReMod.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\UserLibs\ReMod.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="ShapesRuntime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\ShapesRuntime.dll</HintPath>
+    </Reference>
+    <Reference Include="System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Compression, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.IO.Compression.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Numerics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Numerics.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Runtime.Serialization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization.Formatters.Soap, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Runtime.Serialization.Formatters.Soap.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Security, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Windows.Forms.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xaml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Xaml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\System.Xml.Linq.dll</HintPath>
+    </Reference>
+    <Reference Include="Tomlet, Version=3.1.3.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Tomlet.dll</HintPath>
+    </Reference>
+    <Reference Include="Transmtn, Version=1.0.0.1, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Transmtn.dll</HintPath>
+    </Reference>
+    <Reference Include="UnhollowerBaseLib, Version=0.4.17.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnhollowerBaseLib.dll</HintPath>
+    </Reference>
+    <Reference Include="UniTask, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UniTask.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.InputSystem, Version=1.3.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Unity.InputSystem.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Mathematics, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Unity.Mathematics.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Postprocessing.Runtime, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Unity.Postprocessing.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AndroidJNIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.AndroidJNIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AssetBundleModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.DirectorModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.DirectorModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ImageConversionModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.ParticleSystemModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.Physics2DModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.SharedInternalsModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.SharedInternalsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TerrainModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.TerrainModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextCoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.TextCoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UIModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.UIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.UnityWebRequestModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UnityWebRequestTextureModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.UnityWebRequestTextureModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.VideoModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.VideoModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.XRModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\UnityEngine.XRModule.dll</HintPath>
+    </Reference>
+    <Reference Include="VRC.Dynamics, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRC.Dynamics.dll</HintPath>
+    </Reference>
+    <Reference Include="VRC.SDK3.Dynamics.Contact, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRC.SDK3.Dynamics.Contact.dll</HintPath>
+    </Reference>
+    <Reference Include="VRC.SDK3.Dynamics.PhysBone, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRC.SDK3.Dynamics.PhysBone.dll</HintPath>
+    </Reference>
+    <Reference Include="VRC.Udon, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRC.Udon.dll</HintPath>
+    </Reference>
+    <Reference Include="VRC.Udon.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRC.Udon.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="VRC.Udon.Security, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRC.Udon.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="VRC.UI.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRC.UI.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="VRC.UI.Elements, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRC.UI.Elements.dll</HintPath>
+    </Reference>
+    <Reference Include="VRC.UI.Shared, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRC.UI.Shared.dll</HintPath>
+    </Reference>
+    <Reference Include="VRCCore-Standalone, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRCCore-Standalone.dll</HintPath>
+    </Reference>
+    <Reference Include="VRCLog, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRCLog.dll</HintPath>
+    </Reference>
+    <Reference Include="VRCSDK2, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRCSDK2.dll</HintPath>
+    </Reference>
+    <Reference Include="VRCSDK3, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRCSDK3.dll</HintPath>
+    </Reference>
+    <Reference Include="VRCSDK3A, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRCSDK3A.dll</HintPath>
+    </Reference>
+    <Reference Include="VRCSDKBase, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\VRCSDKBase.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35">
+      <HintPath>..\MelonEnv\MelonLoader\Managed\WindowsBase.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="openbrowser_setting.yaml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
