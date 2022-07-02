@@ -17,7 +17,7 @@ namespace OpenBrowser
 {
     public static class BuildInfo
     {
-        public const string Name = "OpenBroswer";
+        public const string Name = "OpenBrowser";
         public const string Author = "ballfun";
         public const string Version = "1.0.0";
     }
