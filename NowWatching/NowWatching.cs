@@ -29,7 +29,7 @@ namespace NowWatching
     {
         public const string Name = "NowWatching";
         public const string Author = "ballfun";
-        public const string Version = "0.2.1";
+        public const string Version = "0.2.2";
     }
 
     public class Mod : MelonMod
@@ -94,12 +94,12 @@ namespace NowWatching
         {
             if (LastPlay != null && (WatchUI.IsUIOpen || AutoFetch.Value) && LastPlay.UpdateNeeded)
             {
-                WatchUI.UpdateInfo();
                 LastPlay.UpdateNeeded = false;
-                if (!LastPlay.ThumbnailRequested)
+                if (!LastPlay.ThumbnailRequested&&!LastPlay.ThumbnailFetched)
                 {
                     GetThumbnail(ref LastPlay);
                 }
+                WatchUI.UpdateInfo();
             }
         }
 
@@ -202,7 +202,7 @@ namespace NowWatching
         
         static IEnumerator  DownloadImage(VidLog log)
         {
-            if (log.ThumbnailRequested)
+            if (log.ThumbnailRequested||log.ThumbnailFetched)
             {
                 yield break;
             }
