@@ -1,3 +1,5 @@
+# lmao VRChat is kil
+
 # Now Watching
 **Requires [ReMod.Core](https://github.com/RequiDev/ReMod.Core)** (either with [ReModCE](https://github.com/RequiDev/ReModCE) or [ReMod.Core.Updater](https://github.com/PennyBunny/ReMod.Core.Updater)),
 also recommends [TabExtension](https://github.com/DragonPlayerX/TabExtension) and [UI Expansion Kit](https://github.com/knah/VRCMods)
